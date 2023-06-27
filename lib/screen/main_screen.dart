@@ -20,44 +20,23 @@ class MainScreen extends StatelessWidget {
           preferredSize: Size.fromHeight(
             MediaQuery.paddingOf(context).top + kTextTabBarHeight,
           ),
-          child: SafeArea(
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  right: 8,
-                  child: FloatingActionButton.small(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SettingsScreen(
-                            repo: repo,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Icon(Icons.local_gas_station),
-                  ),
+          child: const SafeArea(
+            child: TabBar(
+              labelColor: Color(0xFF2C2C2C),
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(
+                  color: Color(0xFF2C2C2C),
+                  width: 2.0,
                 ),
-                const TabBar(
-                  labelColor: Color(0xFF2C2C2C),
-                  indicator: UnderlineTabIndicator(
-                    borderSide: BorderSide(
-                      color: Color(0xFF2C2C2C),
-                      width: 2.0,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    insets: EdgeInsets.symmetric(horizontal: 56.0),
-                  ),
-                  tabs: [
-                    Tab(
-                      text: 'Not Fuel Up',
-                    ),
-                    Tab(
-                      text: 'Fuel Up',
-                    ),
-                  ],
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                insets: EdgeInsets.symmetric(horizontal: 56.0),
+              ),
+              tabs: [
+                Tab(
+                  text: 'Not Fuel Up',
+                ),
+                Tab(
+                  text: 'Fuel Up',
                 ),
               ],
             ),
@@ -134,21 +113,43 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final fuelModel = await Navigator.push<FuelDataModel>(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddFuelScreen(),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          FloatingActionButton.small(
+            heroTag: null,
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(
+                    repo: widget.repo,
+                  ),
+                ),
+              );
+            },
+            child: const Icon(
+              Icons.local_gas_station,
             ),
-          );
-          if (fuelModel != null) {
-            setState(() {
-              widget.repo.addFuel(fuelModel);
-            });
-          }
-        },
-        child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            heroTag: null,
+            onPressed: () async {
+              final fuelModel = await Navigator.push<FuelDataModel>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddFuelScreen(),
+                ),
+              );
+              if (fuelModel != null) {
+                setState(() {
+                  widget.repo.addFuel(fuelModel);
+                });
+              }
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
