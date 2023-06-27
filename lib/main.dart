@@ -18,7 +18,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,23 +34,122 @@ class FuelListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Text(
-        '${fuelModel.distanceTravelled} km',
-        style: TextStyle(
-          fontSize: 30,
-        ),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: ShapeDecoration(
+        color: Color(0xFFF4F4F4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      title: Text('Avg: ${fuelModel.distanceByFuel} km/L'),
-      subtitle: Text('${fuelModel.fuelPrice} Rs/L'),
-      trailing: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      child: Column(
         children: [
-          Text('${fuelModel.cost} PKR'),
-          Text('${fuelModel.fuelUsed} L'),
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${fuelModel.distanceTravelled.toPrecision} km',
+                    style: const TextStyle(
+                      color: Color(0xFF2196F3),
+                      fontSize: 30.19,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    '${fuelModel.cost.toPrecision} PKR',
+                    style: const TextStyle(
+                      color: Color(0xFF4E4E4E),
+                      fontSize: 20.56,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _TileItem(
+                title: 'Average',
+                value: fuelModel.distanceByFuel.toPrecision,
+                unit: 'km/L',
+              ),
+              _TileItem(
+                title: 'Fuel Consumed',
+                value: fuelModel.fuelUsed.toPrecision,
+                unit: 'L',
+              ),
+              _TileItem(
+                title: 'Fuel Price',
+                value: fuelModel.fuelPrice.toPrecision,
+                unit: 'PKR/L',
+              ),
+            ],
+          )
         ],
       ),
+    );
+  }
+}
+
+class _TileItem extends StatelessWidget {
+  final String title;
+  final String value;
+  final String unit;
+
+  const _TileItem({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.unit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Color(0xFF979797),
+            fontSize: 14,
+            fontFamily: 'Lato',
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: const TextStyle(
+                  color: Color(0xFF0D0D0D),
+                  fontSize: 18,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              TextSpan(
+                text: unit,
+                style: const TextStyle(
+                  color: Color(0xFF0D0D0D),
+                  fontSize: 10,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

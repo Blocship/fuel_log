@@ -17,3 +17,9 @@ class FuelModel {
 
   double get cost => fuelUsed * fuelPrice;
 }
+
+extension Xnum on num {
+  String get toPrecision {
+    return toStringAsFixed(truncateToDouble() == this ? 0 : 2);
+  }
+}

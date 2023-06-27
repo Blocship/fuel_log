@@ -4,7 +4,7 @@ import 'package:fuel_log/repository.dart';
 class SettingsScreen extends StatefulWidget {
   final FuelRepository repo;
 
-  SettingsScreen({
+  const SettingsScreen({
     Key? key,
     required this.repo,
   }) : super(key: key);

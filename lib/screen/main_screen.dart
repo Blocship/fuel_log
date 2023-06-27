@@ -3,10 +3,23 @@ import 'package:fuel_log/main.dart';
 import 'package:fuel_log/model.dart';
 import 'package:fuel_log/repository.dart';
 import 'package:fuel_log/screen/add_fuel_screen.dart';
-import 'package:fuel_log/screen/settings_screen.dart';
 import 'package:fuel_log/view_model.dart';
 import 'package:isar/isar.dart';
 
+//  // Hamburger leading to Settings Screen
+//             IconButton(
+//               onPressed: () {
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(
+//                     builder: (context) => SettingsScreen(
+//                       repo: repo,
+//                     ),
+//                   ),
+//                 );
+//               },
+//               icon: Icon(Icons.directions_railway_filled_rounded),
+//             )
 class MainScreen extends StatelessWidget {
   final repo = FuelRepository(Isar.getInstance()!);
 
@@ -16,34 +29,30 @@ class MainScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Fuel App',
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(
+            MediaQuery.paddingOf(context).top + kTextTabBarHeight,
           ),
-          actions: [
-            // Hamburger leading to Settings Screen
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SettingsScreen(
-                        repo: repo,
-                      ),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.directions_railway_filled_rounded))
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(
-                text: 'Not Fuel Up',
+          child: const SafeArea(
+            child: TabBar(
+              labelColor: Color(0xFF2C2C2C),
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(
+                  color: Color(0xFF2C2C2C),
+                  width: 2.0,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                insets: EdgeInsets.symmetric(horizontal: 56.0),
               ),
-              Tab(
-                text: 'Fuel Up',
-              ),
-            ],
+              tabs: [
+                Tab(
+                  text: 'Not Fuel Up',
+                ),
+                Tab(
+                  text: 'Fuel Up',
+                ),
+              ],
+            ),
           ),
         ),
         body: TabBarView(
@@ -78,6 +87,7 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
     super.initState();
     streamNotFueledUp = widget.repo.notFueledUp();
     streamTotalCost = widget.repo.totalCostOfNotFueledUp();
+    print("initState check");
   }
 
   @override
