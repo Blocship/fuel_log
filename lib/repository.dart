@@ -106,6 +106,31 @@ class FuelRepository {
     });
   }
 
+  Stream<double> totalDistanceOfNotFueledUp() {
+    return _collection
+        .where()
+        .filter()
+        .isFueledUpEqualTo(false)
+        .build()
+        .watch(fireImmediately: true)
+        .map((list) {
+      return list.map((model) {
+        return FuelModel(
+          id: model.id,
+          distanceTravelled: model.distanceTravelled,
+          fuelPrice: model.fuelPrice,
+          distanceByFuel: model.distanceByFuel,
+          isFueledUp: model.isFueledUp,
+        );
+      }).toList();
+    }).map((list) {
+      return list.fold(
+        0,
+        (previousValue, element) => previousValue + element.distanceTravelled,
+      );
+    });
+  }
+
   // final totalCost = dummyList.fold(
   //     0.0, (previousValue, element) => previousValue + element.fuelPrice);
   // final totalDistance = dummyList.fold(0.0,

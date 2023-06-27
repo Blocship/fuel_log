@@ -87,7 +87,6 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
     super.initState();
     streamNotFueledUp = widget.repo.notFueledUp();
     streamTotalCost = widget.repo.totalCostOfNotFueledUp();
-    print("initState check");
   }
 
   @override
@@ -96,6 +95,7 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
       body: SafeArea(
         child: Column(
           children: [
+            Statistics(repo: widget.repo),
             Expanded(
               child: StreamBuilder<List<FuelModel>>(
                   stream: streamNotFueledUp,
@@ -116,30 +116,12 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
                           onDismissed: (direction) {
                             widget.repo.markAsFueledUp(fuelModel.id);
                           },
+                          direction: DismissDirection.startToEnd,
                           child: FuelListTile(fuelModel: fuelModel),
                         );
                       },
                     );
                   }),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  StreamBuilder<double>(
-                      stream: streamTotalCost,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Text('Total Cost: 0.0');
-                        }
-                        final totalCost = snapshot.data!;
-                        return Text('Total Cost: $totalCost');
-                      }),
-                  // Text('Total Distance: $totalDistance'),
-                  // Text('Total Fuel Used: $totalFuelUsed'),
-                ],
-              ),
             ),
           ],
         ),
@@ -204,6 +186,158 @@ class _FueledUpTabState extends State<FueledUpTab> {
               },
             );
           }),
+    );
+  }
+}
+
+class Statistics extends StatefulWidget {
+  final FuelRepository repo;
+  const Statistics({
+    Key? key,
+    required this.repo,
+  }) : super(key: key);
+
+  @override
+  State<Statistics> createState() => _StatisticsState();
+}
+
+class _StatisticsState extends State<Statistics> {
+  late final Stream<double> streamTotalCost;
+  late final Stream<double> streamTotalDistance;
+
+  @override
+  void initState() {
+    super.initState();
+    streamTotalCost = widget.repo.totalCostOfNotFueledUp();
+    streamTotalDistance = widget.repo.totalDistanceOfNotFueledUp();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0x332196F3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          StreamBuilder<double>(
+              stream: streamTotalCost,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const _StatItem(
+                    label: 'Total Cost',
+                    value: '0.0',
+                    unit: 'Rs',
+                  );
+                }
+                final totalCost = snapshot.data!;
+                return _StatItem(
+                  label: 'Total Cost',
+                  value: '$totalCost',
+                  unit: 'Rs',
+                );
+              }),
+          Container(
+            width: 2,
+            height: 55.33,
+            decoration: ShapeDecoration(
+              color: Colors.white.withOpacity(0.800000011920929),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+          ),
+          StreamBuilder<double>(
+              stream: streamTotalDistance,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const _StatItem(
+                    label: 'Total Distance',
+                    value: '0.0',
+                    unit: 'Km',
+                  );
+                }
+                final totalDistance = snapshot.data!;
+                return _StatItem(
+                  label: 'Total Distance',
+                  value: '$totalDistance',
+                  unit: 'Km',
+                );
+              }),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+
+  const _StatItem({
+    Key? key,
+    required this.label,
+    required this.value,
+    required this.unit,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text.rich(
+          textAlign: TextAlign.center,
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: const TextStyle(
+                  color: Color(0xFF0D0D0D),
+                  fontSize: 22,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const TextSpan(
+                text: ' ',
+                style: TextStyle(
+                  color: Color(0xFF0D0D0D),
+                  fontSize: 20,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              TextSpan(
+                text: unit,
+                style: const TextStyle(
+                  color: Color(0xFF8B8B8B),
+                  fontSize: 14,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF595959),
+            fontSize: 14,
+            fontFamily: 'Lato',
+            fontWeight: FontWeight.w400,
+          ),
+        )
+      ],
     );
   }
 }
