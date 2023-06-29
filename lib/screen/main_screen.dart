@@ -30,7 +30,7 @@ class MainScreen extends StatelessWidget {
                 );
               },
               icon: const Icon(
-                Icons.local_gas_station,
+                Icons.menu,
               ),
             ),
           ],
@@ -47,16 +47,20 @@ class MainScreen extends StatelessWidget {
             tabs: [
               Tab(
                 text: 'Not Fuel Up',
+                icon: Icon(Icons.local_gas_station_outlined),
               ),
               Tab(
                 text: 'Fuel Up',
+                icon: Icon(Icons.local_gas_station),
               ),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            NotFueledUpTab(repo: repo),
+            NotFueledUpTab(
+              repo: repo,
+            ),
             FueledUpTab(
               repo: repo,
             ),
@@ -116,7 +120,12 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
                             widget.repo.markAsFueledUp(fuelModel.id);
                           },
                           direction: DismissDirection.startToEnd,
-                          child: FuelListTile(fuelModel: fuelModel),
+                          child: FuelListTile(
+                            fuelModel: fuelModel,
+                            onActionPressed: () {
+                              widget.repo.markAsFueledUp(fuelModel.id);
+                            },
+                          ),
                         );
                       },
                     );
@@ -183,7 +192,12 @@ class _FueledUpTabState extends State<FueledUpTab> {
               itemCount: dummyList.length,
               itemBuilder: (context, index) {
                 final fuelModel = dummyList[index];
-                return FuelListTile(fuelModel: fuelModel);
+                return FuelListTile(
+                  fuelModel: fuelModel,
+                  onActionPressed: () {
+                    widget.repo.markAsNotFueledUp(fuelModel.id);
+                  },
+                );
               },
             );
           }),

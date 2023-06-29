@@ -30,8 +30,13 @@ class MyApp extends StatelessWidget {
 
 class FuelListTile extends StatelessWidget {
   final FuelModel fuelModel;
+  final VoidCallback onActionPressed;
 
-  const FuelListTile({Key? key, required this.fuelModel}) : super(key: key);
+  const FuelListTile({
+    Key? key,
+    required this.fuelModel,
+    required this.onActionPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +50,8 @@ class FuelListTile extends StatelessWidget {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +75,23 @@ class FuelListTile extends StatelessWidget {
                     ),
                   )
                 ],
-              )
+              ),
+              InkWell(
+                onTap: onActionPressed,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const ShapeDecoration(
+                    color: Color(0xFFD9D9D9),
+                    shape: CircleBorder(),
+                  ),
+                  child: Icon(
+                    fuelModel.isFueledUp
+                        ? Icons.local_gas_station
+                        : Icons.local_gas_station_outlined,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(

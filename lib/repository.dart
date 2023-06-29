@@ -29,6 +29,17 @@ class FuelRepository {
     });
   }
 
+  Future<void> markAsNotFueledUp(Id id) async {
+    await _isar.writeTxn(() async {
+      final model = await _collection.get(id);
+      if (model != null) {
+        final newModel = model.copyWith(isFueledUp: false);
+        final id = await _collection.put(newModel);
+        print('Marked fuel with id: ${id} as not fueled up');
+      }
+    });
+  }
+
   Stream<List<FuelModel>> all() {
     return _collection.where().watch(fireImmediately: true).map((list) {
       return list.map((model) {
