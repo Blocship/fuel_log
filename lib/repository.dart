@@ -63,16 +63,20 @@ class FuelRepository {
         .build()
         .watch(fireImmediately: true)
         .map((list) {
-      return list.map((model) {
-        return FuelModel(
-          id: model.id,
-          distanceTravelled: model.distanceTravelled,
-          fuelPrice: model.fuelPrice,
-          distanceByFuel: model.distanceByFuel,
-          isFueledUp: model.isFueledUp,
-          date: model.date,
-        );
-      }).toList();
+      return list
+          .map((model) {
+            return FuelModel(
+              id: model.id,
+              distanceTravelled: model.distanceTravelled,
+              fuelPrice: model.fuelPrice,
+              distanceByFuel: model.distanceByFuel,
+              isFueledUp: model.isFueledUp,
+              date: model.date,
+            );
+          })
+          .toList()
+          .reversed
+          .toList();
     });
   }
 
@@ -84,16 +88,20 @@ class FuelRepository {
         .build()
         .watch(fireImmediately: true)
         .map((list) {
-      return list.map((model) {
-        return FuelModel(
-          id: model.id,
-          distanceTravelled: model.distanceTravelled,
-          fuelPrice: model.fuelPrice,
-          distanceByFuel: model.distanceByFuel,
-          isFueledUp: model.isFueledUp,
-          date: model.date,
-        );
-      }).toList();
+      return list
+          .map((model) {
+            return FuelModel(
+              id: model.id,
+              distanceTravelled: model.distanceTravelled,
+              fuelPrice: model.fuelPrice,
+              distanceByFuel: model.distanceByFuel,
+              isFueledUp: model.isFueledUp,
+              date: model.date,
+            );
+          })
+          .toList()
+          .reversed
+          .toList();
     });
   }
 
