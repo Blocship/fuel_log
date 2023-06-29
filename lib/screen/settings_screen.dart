@@ -28,8 +28,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(
           children: [
             ListTile(
-              title: const Text('Fuel Efficiency'),
-              subtitle: const Text('Enter your fuel efficiency'),
+              title: const Text('Current Fuel Price'),
+              subtitle: const Text('PKR/L'),
               trailing: SizedBox(
                 width: 100,
                 child: TextFormField(

@@ -38,9 +38,10 @@ class _AddFuelScreenState extends State<AddFuelScreen> {
               TextFormField(
                 controller: _distanceTravelledController,
                 decoration: const InputDecoration(
-                  labelText: 'Distance Travelled',
+                  labelText: 'Distance Travelled (Km)',
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter distance travelled';
@@ -51,9 +52,10 @@ class _AddFuelScreenState extends State<AddFuelScreen> {
               TextFormField(
                 controller: _fuelPriceController,
                 decoration: const InputDecoration(
-                  labelText: 'Fuel Price',
+                  labelText: 'Fuel Price (PKR/L)',
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter fuel price';
@@ -64,9 +66,10 @@ class _AddFuelScreenState extends State<AddFuelScreen> {
               TextFormField(
                 controller: _distanceByFuelController,
                 decoration: const InputDecoration(
-                  labelText: 'Distance by Fuel',
+                  labelText: 'Fuel Average (Km/L)',
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter distance by fuel';

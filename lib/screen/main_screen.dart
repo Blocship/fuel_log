@@ -16,30 +16,42 @@ class MainScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(
-            MediaQuery.paddingOf(context).top + kTextTabBarHeight,
-          ),
-          child: const SafeArea(
-            child: TabBar(
-              labelColor: Color(0xFF2C2C2C),
-              indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(
-                  color: Color(0xFF2C2C2C),
-                  width: 2.0,
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                insets: EdgeInsets.symmetric(horizontal: 56.0),
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SettingsScreen(
+                      repo: repo,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.local_gas_station,
               ),
-              tabs: [
-                Tab(
-                  text: 'Not Fuel Up',
-                ),
-                Tab(
-                  text: 'Fuel Up',
-                ),
-              ],
             ),
+          ],
+          bottom: const TabBar(
+            labelColor: Color(0xFF2C2C2C),
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(
+                color: Color(0xFF2C2C2C),
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              insets: EdgeInsets.symmetric(horizontal: 56.0),
+            ),
+            tabs: [
+              Tab(
+                text: 'Not Fuel Up',
+              ),
+              Tab(
+                text: 'Fuel Up',
+              ),
+            ],
           ),
         ),
         body: TabBarView(
@@ -113,43 +125,23 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
           ],
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          FloatingActionButton.small(
-            heroTag: null,
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    repo: widget.repo,
-                  ),
-                ),
-              );
-            },
-            child: const Icon(
-              Icons.local_gas_station,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton(
+        heroTag: null,
+        onPressed: () async {
+          final fuelModel = await Navigator.push<FuelDataModel>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddFuelScreen(),
             ),
-          ),
-          FloatingActionButton(
-            heroTag: null,
-            onPressed: () async {
-              final fuelModel = await Navigator.push<FuelDataModel>(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AddFuelScreen(),
-                ),
-              );
-              if (fuelModel != null) {
-                setState(() {
-                  widget.repo.addFuel(fuelModel);
-                });
-              }
-            },
-            child: const Icon(Icons.add),
-          ),
-        ],
+          );
+          if (fuelModel != null) {
+            setState(() {
+              widget.repo.addFuel(fuelModel);
+            });
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -246,7 +238,7 @@ class _StatisticsState extends State<Statistics> {
                 final totalCost = snapshot.data!;
                 return _StatItem(
                   label: 'Total Cost',
-                  value: '$totalCost',
+                  value: totalCost.toPrecision,
                   unit: 'Rs',
                 );
               }),
@@ -273,7 +265,7 @@ class _StatisticsState extends State<Statistics> {
                 final totalDistance = snapshot.data!;
                 return _StatItem(
                   label: 'Total Distance',
-                  value: '$totalDistance',
+                  value: totalDistance.toPrecision,
                   unit: 'Km',
                 );
               }),
