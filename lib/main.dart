@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fuel_log/model.dart';
 import 'package:fuel_log/screen/main_screen.dart';
 import 'package:fuel_log/view_model.dart';
+import 'package:intl/intl.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -76,21 +77,39 @@ class FuelListTile extends StatelessWidget {
                   )
                 ],
               ),
-              InkWell(
-                onTap: onActionPressed,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const ShapeDecoration(
-                    color: Color(0xFFD9D9D9),
-                    shape: CircleBorder(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    DateFormat('MMMM dd').format(fuelModel.date),
+                    style: const TextStyle(
+                      color: Color(0xFF4E4E4E),
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                  child: Icon(
-                    fuelModel.isFueledUp
-                        ? Icons.local_gas_station
-                        : Icons.local_gas_station_outlined,
+                  const SizedBox(
+                    height: 8,
                   ),
-                ),
+                  InkWell(
+                    onTap: onActionPressed,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const ShapeDecoration(
+                        color: Color(0xFFD9D9D9),
+                        shape: CircleBorder(),
+                      ),
+                      child: Icon(
+                        fuelModel.isFueledUp
+                            ? Icons.local_gas_station
+                            : Icons.local_gas_station_outlined,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

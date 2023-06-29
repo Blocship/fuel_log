@@ -4,12 +4,14 @@ class FuelModel {
   final double fuelPrice;
   final double distanceByFuel;
   final bool isFueledUp;
+  final DateTime date;
 
   FuelModel({
     required this.id,
     required this.distanceTravelled,
     required this.fuelPrice,
     required this.distanceByFuel,
+    required this.date,
     this.isFueledUp = false,
   });
 

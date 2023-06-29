@@ -49,6 +49,7 @@ class FuelRepository {
           fuelPrice: model.fuelPrice,
           distanceByFuel: model.distanceByFuel,
           isFueledUp: model.isFueledUp,
+          date: model.date,
         );
       }).toList();
     });
@@ -69,6 +70,7 @@ class FuelRepository {
           fuelPrice: model.fuelPrice,
           distanceByFuel: model.distanceByFuel,
           isFueledUp: model.isFueledUp,
+          date: model.date,
         );
       }).toList();
     });
@@ -89,6 +91,7 @@ class FuelRepository {
           fuelPrice: model.fuelPrice,
           distanceByFuel: model.distanceByFuel,
           isFueledUp: model.isFueledUp,
+          date: model.date,
         );
       }).toList();
     });
@@ -109,6 +112,7 @@ class FuelRepository {
           fuelPrice: model.fuelPrice,
           distanceByFuel: model.distanceByFuel,
           isFueledUp: model.isFueledUp,
+          date: model.date,
         );
       }).toList();
     }).map((list) {
@@ -132,6 +136,7 @@ class FuelRepository {
           fuelPrice: model.fuelPrice,
           distanceByFuel: model.distanceByFuel,
           isFueledUp: model.isFueledUp,
+          date: model.date,
         );
       }).toList();
     }).map((list) {

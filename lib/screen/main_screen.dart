@@ -46,11 +46,9 @@ class MainScreen extends StatelessWidget {
             ),
             tabs: [
               Tab(
-                text: 'Not Fuel Up',
                 icon: Icon(Icons.local_gas_station_outlined),
               ),
               Tab(
-                text: 'Fuel Up',
                 icon: Icon(Icons.local_gas_station),
               ),
             ],
@@ -109,7 +107,6 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
                       );
                     }
                     final dummyList = snapshot.data!;
-                    print("rebuild check");
                     return ListView.builder(
                       itemCount: dummyList.length,
                       itemBuilder: (context, index) {
