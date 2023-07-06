@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:fuel_log/main.dart';
 import 'package:fuel_log/model.dart';
@@ -26,42 +24,61 @@ class MainScreen extends StatelessWidget {
                 SliverPersistentHeader(
                   pinned: true,
                   floating: true,
-                  delegate: HeaderDelegate(
-                    upper: PreferredSize(
-                      preferredSize: const Size.fromHeight(300), // 120
+                  delegate: ScrollableHeaderDelegate(
+                    child: PreferredSize(
+                      preferredSize: const Size.fromHeight(268), // 120
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Statistics(
                             repo: repo,
                           ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
+                              ),
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 20,
+                                child: Divider(
+                                  thickness: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          ColoredBox(
+                            color: Colors.grey[200]!,
+                            child: const TabBar(
+                              labelColor: Color(0xFF2C2C2C),
+                              indicator: UnderlineTabIndicator(
+                                borderSide: BorderSide(
+                                  color: Color(0xFF2C2C2C),
+                                  width: 2.0,
+                                ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                insets: EdgeInsets.symmetric(horizontal: 56.0),
+                              ),
+                              tabs: [
+                                Tab(
+                                  icon: Icon(Icons.local_gas_station_outlined),
+                                ),
+                                Tab(
+                                  icon: Icon(Icons.local_gas_station),
+                                ),
+                              ],
+                            ),
+                          )
                         ],
                       ),
                     ),
-                    lower: PreferredSize(
-                      preferredSize: const Size.fromHeight(46),
-                      child: ColoredBox(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        child: const TabBar(
-                          labelColor: Color(0xFF2C2C2C),
-                          indicator: UnderlineTabIndicator(
-                            borderSide: BorderSide(
-                              color: Color(0xFF2C2C2C),
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            insets: EdgeInsets.symmetric(horizontal: 56.0),
-                          ),
-                          tabs: [
-                            Tab(
-                              icon: Icon(Icons.local_gas_station_outlined),
-                            ),
-                            Tab(
-                              icon: Icon(Icons.local_gas_station),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    visibleSpaceHeight: 68,
                   ),
                 ),
               ];
@@ -79,13 +96,13 @@ class MainScreen extends StatelessWidget {
   }
 }
 
-class HeaderDelegate extends SliverPersistentHeaderDelegate {
-  final PreferredSizeWidget upper;
-  final PreferredSizeWidget lower;
+class ScrollableHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final PreferredSizeWidget child;
+  final double visibleSpaceHeight;
 
-  HeaderDelegate({
-    required this.upper,
-    required this.lower,
+  ScrollableHeaderDelegate({
+    required this.child,
+    required this.visibleSpaceHeight,
   });
 
   final ScrollController controller = ScrollController();
@@ -96,36 +113,25 @@ class HeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final progress = shrinkOffset / maxExtent;
-    bool isMinimized = (shrinkOffset >= (maxExtent - minExtent));
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 0),
-      child: (isMinimized)
-          ? lower
-          : OverflowBox(
-              maxHeight: maxExtent,
-              alignment: Alignment.bottomCenter,
-              child: upper,
-            ),
+    // final progress = shrinkOffset / maxExtent;
+    // bool isMinimized = (shrinkOffset >= (maxExtent - minExtent));
+    return OverflowBox(
+      maxHeight: maxExtent,
+      alignment: Alignment.bottomCenter,
+      child: child,
     );
   }
 
   @override
-  double get maxExtent => max(
-        upper.preferredSize.height,
-        lower.preferredSize.height,
-      );
+  double get maxExtent => child.preferredSize.height;
 
   @override
-  double get minExtent => min(
-        upper.preferredSize.height,
-        lower.preferredSize.height,
-      );
+  double get minExtent => visibleSpaceHeight;
 
   @override
-  bool shouldRebuild(covariant HeaderDelegate oldDelegate) {
-    return oldDelegate.upper != upper || oldDelegate.lower != lower;
+  bool shouldRebuild(covariant ScrollableHeaderDelegate oldDelegate) {
+    return oldDelegate.child != child ||
+        oldDelegate.visibleSpaceHeight != visibleSpaceHeight;
   }
 }
 
@@ -262,7 +268,7 @@ class _FueledUpTabState extends State<FueledUpTab> {
   }
 }
 
-class Statistics extends StatefulWidget {
+class Statistics extends StatefulWidget implements PreferredSizeWidget {
   final FuelRepository repo;
   const Statistics({
     Key? key,
@@ -271,6 +277,9 @@ class Statistics extends StatefulWidget {
 
   @override
   State<Statistics> createState() => _StatisticsState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(200);
 }
 
 class _StatisticsState extends State<Statistics> {
@@ -288,97 +297,120 @@ class _StatisticsState extends State<Statistics> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Wrap(
-            // mainAxisAlignment: MainAxisAlignment.spaceAround,
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _StatContainer(
-                child: StreamBuilder<double>(
-                    stream: streamTotalCost,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const _StatItem(
-                          label: 'Total Cost',
-                          value: '0.0',
-                          unit: 'Rs',
-                        );
-                      }
-                      final totalCost = snapshot.data!;
-                      return _StatItem(
-                        label: 'Total Cost',
-                        value: totalCost.toPrecision,
-                        unit: 'Rs',
-                      );
-                    }),
-              ),
-              _StatContainer(
-                child: StreamBuilder<double>(
-                    stream: streamTotalDistance,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const _StatItem(
-                          label: 'Total Distance',
-                          value: '0.0',
-                          unit: 'Km',
-                        );
-                      }
-                      final totalDistance = snapshot.data!;
-                      return _StatItem(
-                        label: 'Total Distance',
-                        value: totalDistance.toPrecision,
-                        unit: 'Km',
-                      );
-                    }),
-              ),
-              _StatContainer(
-                child: StreamBuilder<double>(
-                    stream: streamFuelConsumed,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const _StatItem(
-                          label: 'Fuel Consumed',
-                          value: '0.0',
-                          unit: 'L',
-                        );
-                      }
-                      final fuelConsumed = snapshot.data!;
-                      return _StatItem(
-                        label: 'Fuel Consumed',
-                        value: fuelConsumed.toPrecision,
-                        unit: 'L',
-                      );
-                    }),
-              ),
-            ],
-          ),
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    repo: widget.repo,
+    return Container(
+      height: widget.preferredSize.height,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _StatContainer(
+                    child: StreamBuilder<double>(
+                        stream: streamTotalCost,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const _StatItem(
+                              label: 'Total Cost',
+                              value: '0.0',
+                              unit: 'Rs',
+                            );
+                          }
+                          final totalCost = snapshot.data!;
+                          return _StatItem(
+                            label: 'Total Cost',
+                            value: totalCost.toPrecision,
+                            unit: 'Rs',
+                          );
+                        }),
                   ),
                 ),
-              );
-            },
-            icon: const Icon(
-              Icons.menu,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: _StatContainer(
+                    child: StreamBuilder<double>(
+                        stream: streamFuelConsumed,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const _StatItem(
+                              label: 'Fuel Consumed',
+                              value: '0.0',
+                              unit: 'L',
+                            );
+                          }
+                          final fuelConsumed = snapshot.data!;
+                          return _StatItem(
+                            label: 'Fuel Consumed',
+                            value: fuelConsumed.toPrecision,
+                            unit: 'L',
+                          );
+                        }),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SettingsScreen(
+                              repo: widget.repo,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: _StatContainer(
+                    child: StreamBuilder<double>(
+                        stream: streamTotalDistance,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const _StatItem(
+                              label: 'Total Distance',
+                              value: '0.0',
+                              unit: 'Km',
+                            );
+                          }
+                          final totalDistance = snapshot.data!;
+                          return _StatItem(
+                            label: 'Total Distance',
+                            value: totalDistance.toPrecision,
+                            unit: 'Km',
+                          );
+                        }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
