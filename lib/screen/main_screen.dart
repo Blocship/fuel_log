@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:fuel_log/main.dart';
 import 'package:fuel_log/model.dart';
@@ -16,56 +18,114 @@ class MainScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SettingsScreen(
-                      repo: repo,
+        body: SafeArea(
+          bottom: false,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverPersistentHeader(
+                  pinned: true,
+                  floating: true,
+                  delegate: HeaderDelegate(
+                    upper: PreferredSize(
+                      preferredSize: const Size.fromHeight(300), // 120
+                      child: Column(
+                        children: [
+                          Statistics(
+                            repo: repo,
+                          ),
+                        ],
+                      ),
+                    ),
+                    lower: PreferredSize(
+                      preferredSize: const Size.fromHeight(46),
+                      child: ColoredBox(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        child: const TabBar(
+                          labelColor: Color(0xFF2C2C2C),
+                          indicator: UnderlineTabIndicator(
+                            borderSide: BorderSide(
+                              color: Color(0xFF2C2C2C),
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            insets: EdgeInsets.symmetric(horizontal: 56.0),
+                          ),
+                          tabs: [
+                            Tab(
+                              icon: Icon(Icons.local_gas_station_outlined),
+                            ),
+                            Tab(
+                              icon: Icon(Icons.local_gas_station),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                );
-              },
-              icon: const Icon(
-                Icons.menu,
-              ),
+                ),
+              ];
+            },
+            body: TabBarView(
+              children: [
+                NotFueledUpTab(repo: repo),
+                FueledUpTab(repo: repo),
+              ],
             ),
-          ],
-          bottom: const TabBar(
-            labelColor: Color(0xFF2C2C2C),
-            indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(
-                color: Color(0xFF2C2C2C),
-                width: 2.0,
-              ),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              insets: EdgeInsets.symmetric(horizontal: 56.0),
-            ),
-            tabs: [
-              Tab(
-                icon: Icon(Icons.local_gas_station_outlined),
-              ),
-              Tab(
-                icon: Icon(Icons.local_gas_station),
-              ),
-            ],
           ),
-        ),
-        body: TabBarView(
-          children: [
-            NotFueledUpTab(
-              repo: repo,
-            ),
-            FueledUpTab(
-              repo: repo,
-            ),
-          ],
         ),
       ),
     );
+  }
+}
+
+class HeaderDelegate extends SliverPersistentHeaderDelegate {
+  final PreferredSizeWidget upper;
+  final PreferredSizeWidget lower;
+
+  HeaderDelegate({
+    required this.upper,
+    required this.lower,
+  });
+
+  final ScrollController controller = ScrollController();
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final progress = shrinkOffset / maxExtent;
+    bool isMinimized = (shrinkOffset >= (maxExtent - minExtent));
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 0),
+      child: (isMinimized)
+          ? lower
+          : OverflowBox(
+              maxHeight: maxExtent,
+              alignment: Alignment.bottomCenter,
+              child: upper,
+            ),
+    );
+  }
+
+  @override
+  double get maxExtent => max(
+        upper.preferredSize.height,
+        lower.preferredSize.height,
+      );
+
+  @override
+  double get minExtent => min(
+        upper.preferredSize.height,
+        lower.preferredSize.height,
+      );
+
+  @override
+  bool shouldRebuild(covariant HeaderDelegate oldDelegate) {
+    return oldDelegate.upper != upper || oldDelegate.lower != lower;
   }
 }
 
@@ -96,7 +156,7 @@ class _NotFueledUpTabState extends State<NotFueledUpTab> {
       body: SafeArea(
         child: Column(
           children: [
-            Statistics(repo: widget.repo),
+            // Statistics(repo: widget.repo),
             Expanded(
               child: StreamBuilder<List<FuelModel>>(
                   stream: streamNotFueledUp,
@@ -216,72 +276,130 @@ class Statistics extends StatefulWidget {
 class _StatisticsState extends State<Statistics> {
   late final Stream<double> streamTotalCost;
   late final Stream<double> streamTotalDistance;
+  late final Stream<double> streamFuelConsumed;
 
   @override
   void initState() {
     super.initState();
     streamTotalCost = widget.repo.totalCostOfNotFueledUp();
     streamTotalDistance = widget.repo.totalDistanceOfNotFueledUp();
+    streamFuelConsumed = widget.repo.totalFuelConsumedOfNotFueledUp();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Wrap(
+            // mainAxisAlignment: MainAxisAlignment.spaceAround,
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              _StatContainer(
+                child: StreamBuilder<double>(
+                    stream: streamTotalCost,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const _StatItem(
+                          label: 'Total Cost',
+                          value: '0.0',
+                          unit: 'Rs',
+                        );
+                      }
+                      final totalCost = snapshot.data!;
+                      return _StatItem(
+                        label: 'Total Cost',
+                        value: totalCost.toPrecision,
+                        unit: 'Rs',
+                      );
+                    }),
+              ),
+              _StatContainer(
+                child: StreamBuilder<double>(
+                    stream: streamTotalDistance,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const _StatItem(
+                          label: 'Total Distance',
+                          value: '0.0',
+                          unit: 'Km',
+                        );
+                      }
+                      final totalDistance = snapshot.data!;
+                      return _StatItem(
+                        label: 'Total Distance',
+                        value: totalDistance.toPrecision,
+                        unit: 'Km',
+                      );
+                    }),
+              ),
+              _StatContainer(
+                child: StreamBuilder<double>(
+                    stream: streamFuelConsumed,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const _StatItem(
+                          label: 'Fuel Consumed',
+                          value: '0.0',
+                          unit: 'L',
+                        );
+                      }
+                      final fuelConsumed = snapshot.data!;
+                      return _StatItem(
+                        label: 'Fuel Consumed',
+                        value: fuelConsumed.toPrecision,
+                        unit: 'L',
+                      );
+                    }),
+              ),
+            ],
+          ),
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: IconButton(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(
+                    repo: widget.repo,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.menu,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatContainer extends StatelessWidget {
+  final Widget child;
+
+  const _StatContainer({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0x332196F3),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          StreamBuilder<double>(
-              stream: streamTotalCost,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const _StatItem(
-                    label: 'Total Cost',
-                    value: '0.0',
-                    unit: 'Rs',
-                  );
-                }
-                final totalCost = snapshot.data!;
-                return _StatItem(
-                  label: 'Total Cost',
-                  value: totalCost.toPrecision,
-                  unit: 'Rs',
-                );
-              }),
-          Container(
-            width: 2,
-            height: 55.33,
-            decoration: ShapeDecoration(
-              color: Colors.white.withOpacity(0.800000011920929),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-            ),
-          ),
-          StreamBuilder<double>(
-              stream: streamTotalDistance,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const _StatItem(
-                    label: 'Total Distance',
-                    value: '0.0',
-                    unit: 'Km',
-                  );
-                }
-                final totalDistance = snapshot.data!;
-                return _StatItem(
-                  label: 'Total Distance',
-                  value: totalDistance.toPrecision,
-                  unit: 'Km',
-                );
-              }),
-        ],
-      ),
+      child: child,
     );
   }
 }
@@ -353,3 +471,96 @@ class _StatItem extends StatelessWidget {
     );
   }
 }
+
+// child: Scaffold(
+//   body: CustomScrollView(
+//     slivers: [
+//       SliverPersistentHeader(
+//         pinned: true,
+//         delegate: HeaderDelegate(),
+//       ),
+//       // dummy slivers
+//       SliverToBoxAdapter(
+//         child: Container(
+//           height: 200,
+//           color: Colors.blue,
+//         ),
+//       ),
+//       SliverToBoxAdapter(
+//         child: Container(
+//           height: 200,
+//           color: Colors.green,
+//         ),
+//       ),
+//       SliverToBoxAdapter(
+//         child: Container(
+//           height: 200,
+//           color: Colors.yellow,
+//         ),
+//       ),
+//       SliverToBoxAdapter(
+//         child: Container(
+//           height: 200,
+//           color: Colors.purple,
+//         ),
+//       ),
+//       SliverToBoxAdapter(
+//         child: Container(
+//           height: 200,
+//           color: Colors.orange,
+//         ),
+//       ),
+//     ],
+//   ),
+// ),
+
+//       child: Scaffold(
+//   appBar: AppBar(
+//     actions: [
+//       IconButton(
+//         onPressed: () async {
+//           await Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//               builder: (context) => SettingsScreen(
+//                 repo: repo,
+//               ),
+//             ),
+//           );
+//         },
+//         icon: const Icon(
+//           Icons.menu,
+//         ),
+//       ),
+//     ],
+//     bottom: const TabBar(
+//       labelColor: Color(0xFF2C2C2C),
+//       indicator: UnderlineTabIndicator(
+//         borderSide: BorderSide(
+//           color: Color(0xFF2C2C2C),
+//           width: 2.0,
+//         ),
+//         borderRadius: BorderRadius.all(Radius.circular(10)),
+//         insets: EdgeInsets.symmetric(horizontal: 56.0),
+//       ),
+//       tabs: [
+//         Tab(
+//           icon: Icon(Icons.local_gas_station_outlined),
+//         ),
+//         Tab(
+//           icon: Icon(Icons.local_gas_station),
+//         ),
+//       ],
+//     ),
+//   ),
+//   body: TabBarView(
+//     children: [
+//       NotFueledUpTab(
+//         repo: repo,
+//       ),
+//       FueledUpTab(
+//         repo: repo,
+//       ),
+//     ],
+//   ),
+// ),

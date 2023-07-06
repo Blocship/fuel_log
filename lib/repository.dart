@@ -155,6 +155,32 @@ class FuelRepository {
     });
   }
 
+  Stream<double> totalFuelConsumedOfNotFueledUp() {
+    return _collection
+        .where()
+        .filter()
+        .isFueledUpEqualTo(false)
+        .build()
+        .watch(fireImmediately: true)
+        .map((list) {
+      return list.map((model) {
+        return FuelModel(
+          id: model.id,
+          distanceTravelled: model.distanceTravelled,
+          fuelPrice: model.fuelPrice,
+          distanceByFuel: model.distanceByFuel,
+          isFueledUp: model.isFueledUp,
+          date: model.date,
+        );
+      }).toList();
+    }).map((list) {
+      return list.fold(
+        0,
+        (previousValue, element) => previousValue + element.fuelUsed,
+      );
+    });
+  }
+
   // final totalCost = dummyList.fold(
   //     0.0, (previousValue, element) => previousValue + element.fuelPrice);
   // final totalDistance = dummyList.fold(0.0,
