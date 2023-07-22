@@ -32,17 +32,18 @@ class _StatisticsState extends State<Statistics> {
     return Container(
       height: widget.preferredSize.height,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: Column(
+            child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
+                  flex: 4,
                   child: _StatContainer(
                     child: StreamBuilder<double>(
                         stream: streamTotalCost,
@@ -63,7 +64,36 @@ class _StatisticsState extends State<Statistics> {
                         }),
                   ),
                 ),
-                const SizedBox(height: 8),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SettingsScreen(
+                              repo: widget.repo,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.menu,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Expanded(
                   child: _StatContainer(
                     child: StreamBuilder<double>(
@@ -85,39 +115,8 @@ class _StatisticsState extends State<Statistics> {
                         }),
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+                const SizedBox(width: 8),
                 Expanded(
-                  flex: 3,
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      onPressed: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsScreen(
-                              repo: widget.repo,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.menu,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 5,
                   child: _StatContainer(
                     child: StreamBuilder<double>(
                         stream: streamTotalDistance,
